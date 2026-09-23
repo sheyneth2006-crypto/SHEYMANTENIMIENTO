@@ -1,6 +1,6 @@
 // 1. Tus credenciales
 const supabaseUrl = 'https://pmugozxkgtwgtzlecywg.supabase.co';
-const supabaseKey = 'sb_publishable_hxZ_smx51pYJwMjNBkDV-A_hybuRsis';
+const supabaseKey = 'sb_publishable_hxZ_smx51pYJwMjNBkDV-A_hybuRsis'
 
 // 2. Creamos el cliente UNA SOLA VEZ y de forma global
 let supabaseClient = null;
@@ -42,5 +42,58 @@ function conectarSupabase() {
     } catch (error) {
         alert("ERROR DE CONEXIÓN");
         console.error("Detalles del error:", error);
+    }
+}
+
+async function buscarCategoria() {
+    // 1. Verificar que el cliente esté conectado
+    if (!supabaseClient) {
+        alert("Primero debes conectarte 🔌");
+        return;
+    }
+
+    // 2. Obtener los valores del formulario
+    const id = document.getElementById('id_categoria').value.trim();
+    const nombre = document.getElementById('nombre_categoria').value.trim();
+
+    // 3. Validar que al menos uno esté lleno
+    if (!id && !nombre) {
+        alert("Ingresa un ID o un Nombre para buscar ⚠️");
+        return;
+    }
+
+    try {
+        // 4. Construir la consulta base
+        let query = supabaseClient.from('categorias').select('*');
+
+        // 5. Filtrar según lo que el usuario escribió
+        if (id) {
+            query = query.eq('id_categoria', id);
+        }
+        if (nombre) {
+            query = query.ilike('nombre', '%${nombre}%'); // 'nombre' es el campo real en Supabase
+        }
+
+        // 6. Ejecutar la consulta
+        const { data, error } = await query;
+
+        if (error) throw error;
+
+        // 7. Si no hay resultados
+        if (!data || data.length === 0) {
+            alert("No se encontró ninguna categoría ❌");
+            return;
+        }
+
+        // 8. Mostrar el primer resultado en el formulario
+        document.getElementById('id_categoria').value = data[0].id_categoria;
+        document.getElementById('nombre_categoria').value = data[0].nombre;
+        document.getElementById('estado').value = data[0].estado;
+
+        alert('✅ Se encontraron ${data.length} resultado(s).');
+
+    } catch (error) {
+        alert("Error al buscar ❌: " + error.message);
+        console.error("Detalle del error:", error);
     }
 }
