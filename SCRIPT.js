@@ -41,7 +41,6 @@ function conectarSupabase() {
         console.error("Detalles del error:", error);
     }
 }
-
 async function buscarCategoria() {
     // 1. Verificar que el cliente esté conectado
     if (!supabaseClient) {
